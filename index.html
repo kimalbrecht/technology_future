@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="Kim Albrecht">
+	<title>The Technology Future We Want</title>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet"> 
+
+	<style type="text/css">
+
+		body {
+			background-color: white;
+			font-family: 'Inter', sans-serif;
+			background: rgb(2,0,36);
+			background: radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+			mix-blend-mode: difference;
+		}
+		#container{
+			position: fixed;
+			width: 90%;
+			height: 90%;
+			top: 5%;
+			left: 5%;
+			border: 3px solid red;
+		}
+
+		.basicCircle {
+			background-color: yellow;
+			color: black;
+			transform: translate(-10vmax);
+			border-radius: 50%;
+			width: 15vmax;
+			height: 15vmax;
+			justify-content: center;
+			align-items: center;
+			border-radius: 100%;
+			text-align: center;
+			display: flex;
+			box-shadow: 20px 20px 40px 20px #0ff;
+			mix-blend-mode: difference;
+		}
+
+		.basicCircle h1 {
+			font-size: 3vmax;
+			text-transform: uppercase;
+			margin: 10px;
+			padding: 10px;
+			font-weight: 800;
+		}
+		.basicCircle h2 {
+			font-size: 2vmax;
+			text-transform: uppercase;
+			margin: 10px;
+			padding: 10px;
+			font-weight: 400;
+		}
+		.basicCircle p {
+			font-size: 1.3vmax;
+			/*text-transform: uppercase;*/
+			margin: 10px;
+			padding: 10px;
+			font-weight: 400;
+		}
+		.basicCircle a {
+			transition: .8s;
+			text-decoration: none;
+			font-style: italic;
+		}
+		.basicCircle img {
+			/*border-radius: 50%;*/
+			width: 7vmax;
+			height: 7vmax;
+			mix-blend-mode: darken;
+		}
+
+		.basicCircle:hover {
+			background-color: white;
+
+		}
+		.basicCircle:hover a{
+			font-weight: 800;
+			color: red;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+
+<!-- VISUALIZATION CONTAINER -->
+
+<script src="js/d3.v6.min.js"></script>
+<script src="js/ztext.min.js"></script>
+
+<div id="bubbleContainer"></div>
+<div id="container">
+	<div id="vis" class="basicCircle">
+		<h1>The Technology Future We Want</h1>
+	</div>
+	<div id="info" class="basicCircle">
+		<h2>Imagining Positive Futures for Social Media</h2>
+	</div>
+	<div id="info" class="basicCircle">
+		<p>Thursday, November 18th, 12-1:15 EST</p>
+	</div>
+	<div id="info" class="basicCircle">
+		<p>A generative, creative, workshop to consider the opportunities and risks of online communication, imagine the futures we want, and acknowledge the difficulty (and importance) of such explorations. All are welcome.</p>
+	</div>
+	<div id="info" class="basicCircle">
+		<p><a target="_blank" href="https://cyber.harvard.edu/programs/institute-rebooting-social-media">Hosted by the Institute for Rebooting Social Media, at the Berkman Klein Center for Internet & Society, Harvard University</a></p>
+	</div>
+<!-- 	<div id="info" class="basicCircle">
+		<p><a href="">Info</a></p>
+	</div> -->
+	<div id="info" class="basicCircle">
+		<p><a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSd9x1cdpeZGOnf3HhTtKK5YrNzZ06Yk4SqjfH40jzY9QhlJ_w/viewform">Open to the public, RSVP required</a></p>
+	</div>
+<!-- 	<div id="info" class="basicCircle">
+		<p><a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSd9x1cdpeZGOnf3HhTtKK5YrNzZ06Yk4SqjfH40jzY9QhlJ_w/viewform">RSVP</a></p>
+	</div> -->
+	<div id="info" class="basicCircle">
+		<a target="_blank" href="https://cyber.harvard.edu/">
+			<img src="img/C797G5an_400x400.jpg">
+		</a>
+	</div>
+	<div id="info" class="basicCircle">
+		<p><a href= "rebootingsocialmedia@cyber.harvard.edu">Contact</a></p>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	var ballNum = document.getElementById("container").childElementCount;
+
+	var balls = d3.selectAll(".basicCircle")
+		.style("position", "fixed")
+		.style("top", function(d,i) {
+			return 11 + i * (71/ballNum) +"%"
+		})
+		.style("left", function(d,i) {
+
+			var val = 10 + i * 42
+
+			var toText = val.toString(); //convert to string
+			var lastChar = toText.slice(-2); //gets last character
+			var lastDigit = +(lastChar);
+
+			return 15 + lastDigit*.8 +"%"
+		})
+		.style("width", function() {
+			return 0 + "px"
+		})
+		.style("height", function() {
+			return 0 + "px"
+		})
+
+	balls.transition()
+		.ease(d3.easeBackInOut)
+		.delay(function(d,i) {
+			return 100
+		})
+		.duration(function() {
+			return 5000;
+		})
+		.style("width", function() {
+			if (this.firstElementChild.localName == "h1") {
+				return this.firstElementChild.innerText.length/1.3 +"vmax"
+			} else if (this.firstElementChild.localName == "h2") {
+				return this.firstElementChild.innerText.length/2.5 +"vmax"
+			} else {
+				return this.firstElementChild.innerText.length/15 + 10 +"vmax"
+			}
+		})
+		.style("height", function() {
+			if (this.firstElementChild.localName == "h1") {
+				return this.firstElementChild.innerText.length/1.3 +"vmax"
+			} else if (this.firstElementChild.localName == "h2") {
+				return this.firstElementChild.innerText.length/2.5 +"vmax"
+			} else {
+				return this.firstElementChild.innerText.length/15 + 10 +"vmax"
+			}
+		})
+
+
+	var text = d3.selectAll(".basicCircle")
+		.selectAll("p,h1,h2,img")
+		.style("opacity", function() {
+			return 0
+		})
+		.transition()
+		.ease(d3.easeBackInOut)
+		.delay(function(d,i) {
+			return 5000 + (500*i);
+		})
+		.duration(function(d,i) {
+			return 500;
+		})
+		.style("opacity", function() {
+			return 1
+		});
+
+	function addCircles() {
+
+		var finalSize = Math.random()*1000;
+		
+		var addedBall = d3.select('#bubbleContainer')
+			.append('div')
+			.attr("class", "basicCircle")
+			.style("position", "fixed")
+			.style("top", function() {
+				return 10 + Math.random() * 80 +"%"
+			})
+			.style("left", function() {
+				return 10 + Math.random() * 80 +"%"
+			})
+			.style("width", function() {
+				return 0 + "px"
+			})
+			.style("height", function() {
+				return 0 + "px"
+			})
+			// .style("opacity", function() {
+			// 	return 0
+			// })
+			.style("transform", function() {
+				return "scale(2,2)"
+			})
+			
+		addedBall
+			.transition()
+			.ease(d3.easeBackInOut)
+			.delay(function(d,i) {
+				return 5000 * Math.random();
+			})
+			.duration(function() {
+				return 5000;
+			})
+			// .style("opacity", function() {
+			// 	return 1
+			// })
+			.style("width", function() {
+				return finalSize + "px"
+			})
+			.style("height", function() {
+				return finalSize + "px"
+			})
+			.transition()
+	    	.delay(function(d,i) {
+				return 30000 * Math.random() + 5000;
+			})
+			.ease(d3.easeBackInOut)
+			.duration(function() {
+				return 5000;
+			})
+			.style("width", function() {
+				return 10000 + "px"
+			})
+			.style("height", function() {
+				return 10000 + "px"
+			})
+			.transition()
+			.duration(1000)
+			.style("opacity", function() {
+				return 0
+			})
+			.remove()
+			.on('end', addCircles);
+
+	}
+	addCircles();
+	addCircles();
+
+</script>
+
+</body>
+</html>
