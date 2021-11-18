@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="Kim Albrecht">
+	<title>The Technology Future We Want</title>
+
+	<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet"> 
+
+	<style type="text/css">
+
+		html, body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background-color: white;
+			font-family: 'Inter', sans-serif;
+			font-weight: 800;
+			background: rgb(2,0,36);
+			background: radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+			mix-blend-mode: difference;
+		}
+		#container{
+			position: fixed;
+			width: 90%;
+			height: 90%;
+			top: 5%;
+			left: 5%;
+			border: 5px solid red;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.basicCircle {
+			background-color: yellow;
+			color: black;
+			border-radius: 50% 0;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			display: flex;
+			position: fixed;
+			box-sizing: border-box;
+			box-shadow: 5px 5px 5px 5px #0ff;
+			mix-blend-mode: difference;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			padding: 10px;
+			line-height: 1.0;
+
+		}
+		.basicCircle:hover {
+			background-color: red;
+		}
+
+		.overlayCircle{
+			cursor: zoom-out;
+			overflow: visible;
+			mix-blend-mode: difference;
+		}
+		#overlayCircle:hover {
+			mix-blend-mode: difference;
+			background-color: red;
+		}
+
+		p small {
+			font-size: 12px;
+			line-height: 1;
+			text-align: left;
+			font-style: italic;
+		}
+
+
+
+		.close {
+			position: absolute;
+			right: 32px;
+			top: 32px;
+			width: 32px;
+			height: 32px;
+		}
+		.close:hover {
+			mix-blend-mode: difference;
+		}
+		.close:before, .close:after {
+			position: absolute;
+			left: 15px;
+			content: ' ';
+			height: 33px;
+			width: 10px;
+			background-color: green;
+		}
+		.close:before {
+			transform: rotate(45deg);
+		}
+		.close:after {
+			transform: rotate(-45deg);
+		}
+
+
+	</style>
+</head>
+<body>
+
+<!-- VISUALIZATION CONTAINER -->
+
+<script src="js/d3.v6.min.js"></script>
+
+<div id="container">
+	<div id="vis"></div>
+</div>
+
+<script type="text/javascript">
+
+var width = window.innerWidth;
+var height = window.innerHeight;
+
+var minWindow = Math.min(width, height);
+
+function textTransform() {
+	d3.tsv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRTBxdehzJTShjdGPVZxWyPJ7TDHSP33hiSfDezPa3DmBObWlHB3zOrLuVgHOW9AtFJ5cJHKtisSpCg/pub?gid=536119857&single=true&output=tsv").then((text) => {
+	
+		var data = {"name": "main", "children": []}
+
+		text.forEach(function(d,i) {
+			data.children.push({
+				"id": i, 
+				"text": d["Take 3 minutes and write a 2 sentence vision for best possible future."], 
+				"value": +d["Take 3 minutes and write a 2 sentence vision for best possible future."].length,
+				"you": +d["Ten years from now, do you think social media, for you, will produce more good or more harm?"],
+				"overall": +d["Ten years from now, do you think social media, overall, will produce more good or more harm?"],
+				"person": d["[optional] If you would like your contribution to be attributed to you, please write your name here:"]
+			})
+		});
+
+		console.log(data)
+
+		vis(data);
+
+		d3.select(window).on('resize', function() {
+			updateWindow(data);
+		});
+
+	});
+
+}
+
+function updateWindow(data) {
+
+	width = window.innerWidth;
+	height = window.innerHeight;
+
+	minWindow = Math.min(width, height);
+
+	var pack = data => d3.pack()
+		.size([width, height])
+		.padding(2)(d3.hierarchy(data)
+			.sum(d => +d.value)
+			// .sort((a, b) => a.value - b.value)
+			)
+
+	const root = pack(data);
+
+	const container = d3.select("#vis");
+
+	var visData = root.descendants();
+
+	visData = visData.slice(1);
+
+	var circles = d3.selectAll(".basicCircle")
+		.data(visData);
+
+	circles
+		.transition()
+		.ease(d3.easeBackInOut)
+		.delay(function(d,i) {
+			return 20 * i;
+		})
+		.style("top", function(d) {
+			return d.y + 2.5 - d.r + "px"
+		})
+		.style("left", function(d) {
+			return d.x + 2.5 - d.r + "px"
+		})
+		.style("width", function(d) {
+			return d.r*2 + "px"
+		})
+		.style("height", function(d) {
+			return d.r*2 + "px"
+		})
+
+	circles.select("p")
+		.transition()
+		.ease(d3.easeBackInOut)
+		.delay(function(d,i) {
+			return 20 * i;
+		})
+		.style("font-size", function(d) {
+			return d.r/(d.data.text.length/7) + 4 + "px"
+		});
+
+	nodeRemoval();
+
+}
+
+textTransform();
+
+function vis(data) {
+
+	let view;
+
+	var pack = data => d3.pack()
+		.size([width, height])
+		.padding(2)(d3.hierarchy(data)
+			.sum(d => +d.value)
+			// .sort((a, b) => a.data.overall - b.data.overall)
+			// .sort( function(a,b) {
+			// 	return (b.data.overall * b.data.you) - (a.data.overall * a.data.you)
+			// })
+			)
+
+	const root = pack(data);
+
+	const container = d3.select("#vis")
+	container.style("cursor", "zoom-in");
+
+	var visData = root.descendants();
+
+	visData = visData.slice(1);
+
+	var node = container.selectAll("div")
+		.data(visData, function(d) { return d.id; })
+
+	var circles = node.enter().append("div")
+		.attr("class", "basicCircle")
+		.style("top", function(d) {
+			return d.y + 2.5 - d.r + "px"
+		})
+		.style("left", function(d) {
+			return d.x + 2.5 - d.r + "px"
+		})
+		.style("width", function(d) {
+			return 0 + "px"
+		})
+		.style("height", function(d) {
+			return 0 + "px"
+		});
+		
+	circles
+		.transition()
+		.ease(d3.easeBackInOut)
+		.delay(function(d,i) {
+			return 20 * i;
+		})
+		.duration(function() {
+			return 500;
+		})
+		.style("width", function(d) {
+			return d.r*2 + "px"
+		})
+		.style("height", function(d) {
+			return d.r*2 + "px"
+		});
+
+	circles
+		.append("p")
+		.text(function(d) { return d.data.text })
+		.style("font-size", function(d) {
+			return 0 + "px"
+		})
+		.transition()
+		// .ease(d3.easeBackInOut)
+		.delay(function(d,i) {
+			return 20 * i + 500;
+		})
+		.duration(function() {
+			return 0;
+		})
+		.style("font-size", function(d) {
+			return d.r/(d.data.text.length/7) + 2 + "px"
+		});		
+
+	circles.on("click", nodeClick);
+}
+
+function nodeClick() {
+
+	d3.selectAll(".overlayCircle")
+		.style("opacity", 1)
+		.transition()
+		.ease(d3.easeBackInOut)
+		.duration(500)
+		.style("opacity", 0)
+		.remove();
+
+	var datum = this.__data__;
+
+	var winSize = minWindow/10;
+
+	var overCircle = d3.select("body")
+		.append("div")
+		.attr("class", "overlayCircle basicCircle")
+		.attr("id", "overlayCircle")
+		.style("top", datum.y + 2.5 - datum.r + "px")
+		.style("left", datum.x + 2.5 - datum.r + "px")
+		.style("width", datum.r*2 + "px")
+		.style("height", datum.r*2 + "px")
+		.style("background-color", "yellow")
+		.style("mix-blend-mode", "normal")
+
+	overCircle.transition()
+		.ease(d3.easeBackInOut)
+		.duration(500)
+		.style("top", height/10 + "px")
+		.style("left", width/10 + "px")
+		.style("width", winSize*8 + "px")
+		.style("height", winSize*8 + "px")
+		.style("background-color", "white");
+
+	overCircle
+		.append("p")
+		.html(function(d) {
+			if (datum.data.person !== "") {
+				return datum.data.text + "<br><small>" + datum.data.person + "</small>"
+			} else {
+				return datum.data.text
+			}
+		})
+		.style("font-size", datum.r/(datum.data.text.length/7) + 2 + "px")
+		.style("line-height", 1)
+		.style("opacity", 0)
+		.transition()
+		.duration(500)
+		.style("font-size", winSize*3/(datum.data.text.length/5) + 15 + "px")
+		.style("line-height", 1.3)
+		.style("opacity", 1);
+
+	setTimeout(function() {
+		overCircle
+			.append("a")
+			.attr("class", "close");
+	}, 500);
+
+	overCircle.on("click", nodeRemoval);
+
+}
+
+function nodeRemoval() {
+
+	d3.selectAll(".overlayCircle")
+		.style("opacity", 1)
+		.transition()
+		.ease(d3.easeBackInOut)
+		.duration(500)
+		.style("opacity", 0)
+		.remove();
+}
+
+</script>
+
+</body>
+</html>
